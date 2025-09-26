@@ -1,29 +1,44 @@
-name: Simulated Deployment
+name: Deploy App
 
 on:
+  workflow_dispatch:   # allows manual trigger
   push:
     branches:
-      - main
+      - main           # trigger on pushes to main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Simulate Deployment
         run: |
-          echo "Simulating deployment..."
-          # Simulate a success or failure randomly
-          STATUS="success"
-          echo "{\"deployment_id\": 1, \"status\": \"$STATUS\"}" > deployment.json
-          mkdir -p artifact
-          mv deployment.json artifact/
+          echo "🚀 Starting deployment..."
+          # pretend deployment (always succeed for now)
+          echo "Deployment successful!"
 
-      - name: Upload Deployment Artifact
-        uses: actions/upload-artifact@v3
+      - name: Mark Deployment Success
+        if: success()
+        run: echo "DEPLOYMENT_STATUS=success" >> $GITHUB_ENV
+
+      - name: Mark Rollback
+        if: failure()
+        run: echo "DEPLOYMENT_STATUS=rollback" >> $GITHUB_ENV
+
+      - name: Log Deployment Metadata
+        run: |
+          echo "{
+            \"deployment_id\": \"${{ github.run_id }}\",
+            \"repo\": \"${{ github.repository }}\",
+            \"status\": \"${DEPLOYMENT_STATUS}\",
+            \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+          }" >> deployments_log.json
+
+      - name: Upload Deployment Log
+        uses: actions/upload-artifact@v4
         with:
-          name: deployment-artifact
-          path: artifact/
+          name: deployment-log
+          path: deployments_log.json
