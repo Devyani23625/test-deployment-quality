@@ -23,4 +23,39 @@ jobs:
             echo "DEPLOYMENT_STATUS=success" >> $GITHUB_ENV
           else
             echo "Deployment failed!"
-            echo "DEPLOYMENT_STATUS=failed" >> $GIT_
+            echo "DEPLOYMENT_STATUS=failed" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - name: Mark Rollback
+        if: failure()
+        run: |
+          echo "Performing rollback..."
+          mkdir -p deployment_logs
+          cat > deployment_logs/rollback_log.json <<EOF
+          {
+            "deployment_id": "${{ github.run_id }}",
+            "repo": "${{ github.repository }}",
+            "status": "rollback",
+            "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          }
+          EOF
+
+      - name: Log Deployment Metadata
+        if: success()
+        run: |
+          mkdir -p deployment_logs
+          cat > deployment_logs/deployments_log.json <<EOF
+          {
+            "deployment_id": "${{ github.run_id }}",
+            "repo": "${{ github.repository }}",
+            "status": "success",
+            "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          }
+          EOF
+
+      - name: Upload Deployment Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-logs
+          path: deployment_logs/
