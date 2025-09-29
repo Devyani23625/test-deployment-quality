@@ -1,14 +1,71 @@
-      - name: Log Rollback Metadata
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Run Deployment (simulate success/failure randomly here)
+      - name: Run Deployment
+        id: deploy
         run: |
+          echo "🚀 Starting deployment..."
+          # Simulating random success/failure
+          if [ $((RANDOM % 2)) -eq 0 ]; then
+            echo "Deployment successful!" | tee deployment.log
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "Deployment failed!" | tee deployment.log
+            echo "status=failure" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      # 3. Log Deployment Metadata
+      - name: Log Deployment Metadata
+        if: always()   # Run even if previous step failed
+        run: |
+          echo '{
+            "deployment_id": "${{ github.run_id }}",
+            "repo": "${{ github.repository }}",
+            "status": "${{ steps.deploy.outputs.status }}",
+            "timestamp": "${{ github.run_started_at }}"
+          }' > deployment.json
+
+      # 4. Upload Deployment Logs
+      - name: Upload Deployment Logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-logs
+          path: |
+            deployment.json
+            deployment.log
+
+      # 5. Rollback on Failure
+      - name: Run Rollback
+        if: failure()   # Run only if deployment fails
+        run: |
+          echo "⚠️ Rollback triggered due to failed deployment." | tee rollback.log
           echo '{
             "rollback_id": "RBK-${{ github.run_id }}",
             "repo": "${{ github.repository }}",
-            "status": "none",
+            "status": "rollback-triggered",
             "timestamp": "${{ github.run_started_at }}"
           }' > rollback.json
 
-      - name: Upload Rollback Artifact
-        uses: actions/upload-artifact@v4
+      # 6. Upload Rollback Logs
+      - name: Upload Rollback Logs
+        if: failure()
+        uses: actions/upload-artifact@v3
         with:
           name: rollback-logs
-          path: rollback.json
+          path: |
+            rollback.json
+            rollback.log
