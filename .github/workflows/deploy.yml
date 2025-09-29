@@ -46,7 +46,8 @@ jobs:
           fi
 
       - name: Upload Deployment Log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+
         with:
           name: deployment-log
           path: deployment_logs/deployments_log.json
