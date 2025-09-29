@@ -1,61 +1,14 @@
-name: Deploy App
-
-on:
-  workflow_dispatch:      # allows manual trigger
-  push:
-    branches:
-      - main              # trigger on pushes to main branch
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Simulate Deployment
+      - name: Log Rollback Metadata
         run: |
-          echo "🚀 Starting deployment..."
-          # pretend deployment - success/fail simulation
-          if [ $((RANDOM % 2)) -eq 0 ]; then
-            echo "Deployment successful!"
-            echo "DEPLOYMENT_STATUS=success" >> $GITHUB_ENV
-          else
-            echo "Deployment failed!"
-            echo "DEPLOYMENT_STATUS=failed" >> $GITHUB_ENV
-            exit 1
-          fi
-
-      - name: Mark Rollback
-        if: failure()
-        run: |
-          echo "Performing rollback..."
-          mkdir -p deployment_logs
-          cat > deployment_logs/rollback_log.json <<EOF
-          {
-            "deployment_id": "${{ github.run_id }}",
+          echo '{
+            "rollback_id": "RBK-${{ github.run_id }}",
             "repo": "${{ github.repository }}",
-            "status": "rollback",
-            "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          }
-          EOF
+            "status": "none",
+            "timestamp": "${{ github.run_started_at }}"
+          }' > rollback.json
 
-      - name: Log Deployment Metadata
-        if: success()
-        run: |
-          mkdir -p deployment_logs
-          cat > deployment_logs/deployments_log.json <<EOF
-          {
-            "deployment_id": "${{ github.run_id }}",
-            "repo": "${{ github.repository }}",
-            "status": "success",
-            "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          }
-          EOF
-
-      - name: Upload Deployment Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Rollback Artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: deployment-logs
-          path: deployment_logs/
+          name: rollback-logs
+          path: rollback.json
