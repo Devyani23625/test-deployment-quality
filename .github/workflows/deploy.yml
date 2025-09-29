@@ -1,71 +1,38 @@
-name: Deploy
+name: Deploy App
 
 on:
   workflow_dispatch:
+    inputs:
+      rollback:
+        description: 'Is this a rollback deployment?'
+        required: false
+        default: 'false'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2. Run Deployment (simulate success/failure randomly here)
-      - name: Run Deployment
-        id: deploy
-        run: |
-          echo "🚀 Starting deployment..."
-          # Simulating random success/failure
-          if [ $((RANDOM % 2)) -eq 0 ]; then
-            echo "Deployment successful!" | tee deployment.log
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "Deployment failed!" | tee deployment.log
-            echo "status=failure" >> $GITHUB_OUTPUT
-            exit 1
-          fi
+      - name: Set rollback input
+        run: echo "ROLLBACK=${{ github.event.inputs.rollback }}" >> $GITHUB_ENV
 
-      # 3. Log Deployment Metadata
-      - name: Log Deployment Metadata
-        if: always()   # Run even if previous step failed
+      - name: Simulate Deploy
+        run: echo "Deploying..."  # replace with actual deploy
+
+      - name: Save Deployment Metadata
         run: |
-          echo '{
+          echo '[{
             "deployment_id": "${{ github.run_id }}",
             "repo": "${{ github.repository }}",
-            "status": "${{ steps.deploy.outputs.status }}",
+            "status": "success",
+            "rollback": '${{ env.ROLLBACK }}',
             "timestamp": "${{ github.run_started_at }}"
-          }' > deployment.json
+          }]' > deployments_log.json
 
-      # 4. Upload Deployment Logs
-      - name: Upload Deployment Logs
-        if: always()
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: deployment-logs
-          path: |
-            deployment.json
-            deployment.log
-
-      # 5. Rollback on Failure
-      - name: Run Rollback
-        if: failure()   # Run only if deployment fails
-        run: |
-          echo "⚠️ Rollback triggered due to failed deployment." | tee rollback.log
-          echo '{
-            "rollback_id": "RBK-${{ github.run_id }}",
-            "repo": "${{ github.repository }}",
-            "status": "rollback-triggered",
-            "timestamp": "${{ github.run_started_at }}"
-          }' > rollback.json
-
-      # 6. Upload Rollback Logs
-      - name: Upload Rollback Logs
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: rollback-logs
-          path: |
-            rollback.json
-            rollback.log
+          name: deployment-log
+          path: deployments_log.json
