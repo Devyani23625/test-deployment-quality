@@ -1,10 +1,10 @@
 name: Deploy App
 
 on:
-  workflow_dispatch:   # allows manual trigger
+  workflow_dispatch:
   push:
     branches:
-      - main           # trigger on pushes to main branch
+      - main
 
 jobs:
   deploy:
@@ -12,33 +12,41 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Simulate Deployment
+        run: echo "Deploying app..." 
+
+      - name: Create Deployment Metadata
+        id: metadata
         run: |
-          echo "🚀 Starting deployment..."
-          # pretend deployment (always succeed for now)
-          echo "Deployment successful!"
+          echo "DEPLOY_ID=$RANDOM" >> $GITHUB_ENV
+          echo "REPO=$GITHUB_REPOSITORY" >> $GITHUB_ENV
+          echo "STATUS=success" >> $GITHUB_ENV
+          echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
 
-      - name: Mark Deployment Success
-        if: success()
-        run: echo "DEPLOYMENT_STATUS=success" >> $GITHUB_ENV
-
-      - name: Mark Rollback
-        if: failure()
-        run: echo "DEPLOYMENT_STATUS=rollback" >> $GITHUB_ENV
-
-      - name: Log Deployment Metadata
+      - name: Append Deployment Log
         run: |
-          echo "{
-            \"deployment_id\": \"${{ github.run_id }}\",
-            \"repo\": \"${{ github.repository }}\",
-            \"status\": \"${DEPLOYMENT_STATUS}\",
-            \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-          }" >> deployments_log.json
+          mkdir -p deployment_logs
+          LOG_FILE=deployment_logs/deployments_log.json
+          
+          NEW_ENTRY=$(jq -n \
+            --arg id "$DEPLOY_ID" \
+            --arg repo "$REPO" \
+            --arg status "$STATUS" \
+            --arg time "$TIMESTAMP" \
+            '{deployment_id:$id, repo:$repo, status:$status, timestamp:$time}')
+
+          if [ -f "$LOG_FILE" ]; then
+            # Append to existing log
+            jq ". + [$NEW_ENTRY]" "$LOG_FILE" > temp.json && mv temp.json "$LOG_FILE"
+          else
+            # Create new log array
+            echo "[$NEW_ENTRY]" > "$LOG_FILE"
+          fi
 
       - name: Upload Deployment Log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: deployment-log
-          path: deployments_log.json
+          path: deployment_logs/deployments_log.json
