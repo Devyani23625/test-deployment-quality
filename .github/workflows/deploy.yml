@@ -1,10 +1,10 @@
 name: Deploy App
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:      # allows manual trigger
   push:
     branches:
-      - main
+      - main              # trigger on pushes to main branch
 
 jobs:
   deploy:
@@ -12,42 +12,15 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Simulate Deployment
-        run: echo "Deploying app..." 
-
-      - name: Create Deployment Metadata
-        id: metadata
         run: |
-          echo "DEPLOY_ID=$RANDOM" >> $GITHUB_ENV
-          echo "REPO=$GITHUB_REPOSITORY" >> $GITHUB_ENV
-          echo "STATUS=success" >> $GITHUB_ENV
-          echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
-
-      - name: Append Deployment Log
-        run: |
-          mkdir -p deployment_logs
-          LOG_FILE=deployment_logs/deployments_log.json
-          
-          NEW_ENTRY=$(jq -n \
-            --arg id "$DEPLOY_ID" \
-            --arg repo "$REPO" \
-            --arg status "$STATUS" \
-            --arg time "$TIMESTAMP" \
-            '{deployment_id:$id, repo:$repo, status:$status, timestamp:$time}')
-
-          if [ -f "$LOG_FILE" ]; then
-            # Append to existing log
-            jq ". + [$NEW_ENTRY]" "$LOG_FILE" > temp.json && mv temp.json "$LOG_FILE"
+          echo "🚀 Starting deployment..."
+          # pretend deployment - success/fail simulation
+          if [ $((RANDOM % 2)) -eq 0 ]; then
+            echo "Deployment successful!"
+            echo "DEPLOYMENT_STATUS=success" >> $GITHUB_ENV
           else
-            # Create new log array
-            echo "[$NEW_ENTRY]" > "$LOG_FILE"
-          fi
-
-      - name: Upload Deployment Log
-        uses: actions/upload-artifact@v4
-
-        with:
-          name: deployment-log
-          path: deployment_logs/deployments_log.json
+            echo "Deployment failed!"
+            echo "DEPLOYMENT_STATUS=failed" >> $GIT_
