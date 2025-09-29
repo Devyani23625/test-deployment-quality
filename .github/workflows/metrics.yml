@@ -1,62 +1,52 @@
-name: Update Deployment Metrics
+name: Deploy App
 
 on:
-  workflow_run:
-    workflows: ["Deploy App"]
-    types:
-      - completed
-      
-permissions:
-  actions: read
-  contents: read
-
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  update-metrics:
+  deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Download Artifact from Deploy App
-        uses: actions/github-script@v7
+      - name: Simulate Deployment
+        run: echo "Deploying app..." 
+
+      - name: Create Deployment Metadata
+        id: metadata
+        run: |
+          echo "DEPLOY_ID=$RANDOM" >> $GITHUB_ENV
+          echo "REPO=$GITHUB_REPOSITORY" >> $GITHUB_ENV
+          echo "STATUS=success" >> $GITHUB_ENV
+          echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
+
+      - name: Append Deployment Log
+        run: |
+          mkdir -p deployment_logs
+          LOG_FILE=deployment_logs/deployments_log.json
+          
+          NEW_ENTRY=$(jq -n \
+            --arg id "$DEPLOY_ID" \
+            --arg repo "$REPO" \
+            --arg status "$STATUS" \
+            --arg time "$TIMESTAMP" \
+            '{deployment_id:$id, repo:$repo, status:$status, timestamp:$time}')
+
+          if [ -f "$LOG_FILE" ]; then
+            # Append to existing log
+            jq ". + [$NEW_ENTRY]" "$LOG_FILE" > temp.json && mv temp.json "$LOG_FILE"
+          else
+            # Create new log array
+            echo "[$NEW_ENTRY]" > "$LOG_FILE"
+          fi
+
+      - name: Upload Deployment Log
+        uses: actions/upload-artifact@v3
         with:
-          script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-            });
-            const match = artifacts.data.artifacts.find(a => a.name === "deployment-log");
-            if (!match) {
-              core.setFailed("No deployment-log artifact found");
-              return;
-            }
-            const fs = require('fs');
-            const dest = 'artifact.zip';
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: match.id,
-              archive_format: 'zip',
-            });
-            fs.writeFileSync(dest, Buffer.from(download.data));
-
-      - name: Unzip Artifact
-        run: unzip artifact.zip
-
-      - name: Parse JSON and Update CSV
-        run: |
-          STATUS=$(jq -r .status deployments_log.json)
-          TIMESTAMP=$(jq -r .timestamp deployments_log.json)
-          echo "$TIMESTAMP,$STATUS" >> metrics.csv
-
-      - name: Commit and Push metrics.csv
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          git add metrics.csv
-          git commit -m "Update metrics.csv" || echo "No changes to commit"
-          git push
+          name: deployment-log
+          path: deployment_logs/deployments_log.json
