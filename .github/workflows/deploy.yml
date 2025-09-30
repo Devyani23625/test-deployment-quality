@@ -32,7 +32,7 @@ jobs:
           }]' > deployments_log.json
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deployment-log
           path: deployments_log.json
