@@ -41,5 +41,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rollback-log
-          path: deployment-logs.json
+          path: deployments_log.json
+
 
