@@ -23,6 +23,7 @@ jobs:
       - name: Log Rollback
         run: |
           node .github/scripts/log-deployment.js \
+          
             --status failed \
             --version ${{ github.event.inputs.rollback_from }} \
             --rollback true \
