@@ -23,7 +23,12 @@ jobs:
       - name: Log Rollback
         run: |
           node .github/scripts/log-deployment.js \
-          
+          - name: 🔍 Debug - Check script path
+  run: |
+    echo "Current working directory: $(pwd)"
+    echo "List all files:"
+    find . -type f
+
             --status failed \
             --version ${{ github.event.inputs.rollback_from }} \
             --rollback true \
