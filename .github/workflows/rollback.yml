@@ -38,7 +38,7 @@ jobs:
             --rollback true \
             --reverted_to ${{ github.event.inputs.rollback_to }}
       - name: Upload Rollback Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rollback-log
           path: deployments_log.json
