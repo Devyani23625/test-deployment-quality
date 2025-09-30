@@ -1,0 +1,29 @@
+# .github/workflows/rollback.yml
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback_from:
+        description: "Version that failed"
+        required: true
+      rollback_to:
+        description: "Version to rollback to"
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Perform Rollback
+        run: |
+          echo "Rolling back from ${{ github.event.inputs.rollback_from }} to ${{ github.event.inputs.rollback_to }}"
+          # Simulate rollback (replace with real rollback command)
+
+      - name: Log Rollback
+        run: |
+          node .github/scripts/log-deployment.js \
+            --status failed \
+            --version ${{ github.event.inputs.rollback_from }} \
+            --rollback true \
+            --reverted_to ${{ github.event.inputs.rollback_to }}
