@@ -14,23 +14,25 @@ on:
 jobs:
   rollback:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Perform Rollback
         run: |
           echo "Rolling back from ${{ github.event.inputs.rollback_from }} to ${{ github.event.inputs.rollback_to }}"
-          # Simulate rollback (replace with real rollback command)
+          # TODO: Replace this with your actual rollback command
+
+      - name: 🔍 Debug - Check script path
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "List all files:"
+          find . -type f
 
       - name: Log Rollback
         run: |
           node .github/scripts/log-deployment.js \
-          - name: 🔍 Debug - Check script path
-            run: |
-              echo "Current working directory: $(pwd)"
-              echo "List all files:"
-              find . -type f
-
- 
-
             --status failed \
             --version ${{ github.event.inputs.rollback_from }} \
             --rollback true \
