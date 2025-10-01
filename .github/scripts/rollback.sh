@@ -1,15 +1,13 @@
 #!/bin/bash
- 
 set -e
- 
-echo "🔴 Deployment failed. Starting rollback..."
- 
-# Simulate restoring the previous deployment artifact
-if [ -d "./rollback_backup" ]; then
-  echo "♻️ Restoring previous version from rollback_backup..."
+
+echo " Deployment failed. Starting rollback..."
+
+if [ -d "rollback-backup" ]; then
+  echo " Restoring from rollback-backup..."
+
   rm -rf deployed_version
-  cp -r rollback_backup deployed_version
-  
+  cp -r rollback-backup deployed_version
   mkdir -p deployed_version
   echo "App version deployed at $(date)" > deployed_version/app.txt
  
@@ -17,8 +15,8 @@ if [ -d "./rollback_backup" ]; then
   mkdir -p logs
   echo "{\"status\": \"rollback success\", \"timestamp\": \"$(date)\"}" > logs/deployment_log.json
  
-  echo "✅ Rollback complete. Previous version restored."
+  echo " Rollback complete."
 else
-  echo "❌ No previous artifact found for rollback!"
+  echo "❌ No rollback-backup artifact found!"
   exit 1
 fi
