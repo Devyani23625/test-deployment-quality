@@ -26,14 +26,14 @@ jobs:
  
       - name: Upload Deployment Log Artifact
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deployment-log
           path: logs/deployment_log.json
  
       - name: Upload Rollback Backup Artifact
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rollback-backup
           path: rollback_backup
