@@ -5,7 +5,7 @@ set -e
 echo "🔴 Deployment failed. Starting rollback..."
  
 # Simulate restoring the previous deployment artifact
-if [ -d "./rollback_backup" ]; then
+if [ -d "./successful_version" ]; then
   echo "♻️ Restoring previous version from rollback_backup..."
   rm -rf deployed_version
   cp -r successful_version deployed_version
