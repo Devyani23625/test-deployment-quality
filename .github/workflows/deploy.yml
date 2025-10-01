@@ -22,7 +22,7 @@ jobs:
         run: |
           echo " Saving backup of deployed version..."
           rm -rf rollback_backup
-          cp -r deployed_version rollback_backup
+          cp -r deployed_version/* rollback_backup/
  
       - name: Upload Deployment Log Artifact
         if: success()
@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rollback-backup
-          path: rollback_backup
+          path: rollback_backup/
  
       - name: Download Rollback Artifact
         if: failure()
