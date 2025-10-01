@@ -21,7 +21,7 @@ jobs:
         if: success()
         run: |
           echo "📦 Saving backup of deployed version..."
-          # rm -rf rollback_backup
+        
           cp -r deployed_version successful_version
  
       - name: Upload Deployment Log Artifact
