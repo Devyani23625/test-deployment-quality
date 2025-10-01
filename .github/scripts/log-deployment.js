@@ -1,5 +1,13 @@
 const fs = require('fs');
-const args = require('minimist')(process.argv.slice(2));
+const args = {};
+process.argv.slice(2).forEach((arg, i, arr) => {
+  if (arg.startsWith('--')) {
+    const key = arg.slice(2);
+    const value = arr[i + 1] && !arr[i + 1].startsWith('--') ? arr[i + 1] : true;
+    args[key] = value;
+  }
+});
+
 
 const log = {
   deployment_id: process.env.GITHUB_RUN_ID,
