@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "📦 Saving backup of deployed version..."
         
-          cp -r deployed_version successful_version
+          cp -r deployed_versio successful_version
  
       - name: Upload Deployment Log Artifact
         if: success()
