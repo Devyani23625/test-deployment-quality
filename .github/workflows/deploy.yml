@@ -14,8 +14,10 @@ jobs:
  
       - name: Run Deployment Script
         run: |
-         # chmod +x scripts/deploy.sh
-          ./scripts/deploy.sh
+         chmod +x scripts/deploy.sh 
+         git add scripts/deploy.sh scripts/rollback.sh
+         git commit -m "Make scripts executable"
+         git push
  
       - name: Save Successful Version for Rollback
         if: success()
@@ -41,5 +43,8 @@ jobs:
       - name: Rollback on Failure
         if: failure()
         run: |
-         # chmod +x scripts/rollback.sh
-          ./scripts/rollback.sh
+         chmod +x scripts/rollback.sh
+         git add scripts/rollback.sh
+         git commit -m "Make scripts executable"
+         git push
+ 
