@@ -11,17 +11,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
- 
+        
       - name: Run Deployment Script
         run: |
-         chmod +x .github/scripts/deploy.sh 
-         .github/scripts/deploy.sh 
+          chmod +x .github/scripts/deploy.sh
+          .github/scripts/deploy.sh
  
       - name: Save Successful Version for Rollback
         if: success()
         run: |
           echo "📦 Saving backup of deployed version..."
-        
+          rm -rf rollback_backup
           cp -r deployed_version rollback_backup
  
       - name: Upload Deployment Log Artifact
@@ -31,12 +31,12 @@ jobs:
           name: deployment-log
           path: logs/deployment_log.json
  
-      - name: Upload Rollback Backup Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: rollback-backup
-          path: logs/deployment_log.json
+      # - name: Upload Rollback Backup Artifact
+      #   if: success()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: rollback-backup
+      #     path: rollback_backup
 
       - name: Rollback on Failure
         if: failure()
