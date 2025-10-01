@@ -17,6 +17,6 @@ if [ -d "rollback-backup" ]; then
  
   echo " Rollback complete."
 else
-  echo "❌ No rollback-backup artifact found!"
+  echo " No rollback-backup artifact found!"
   exit 1
 fi
