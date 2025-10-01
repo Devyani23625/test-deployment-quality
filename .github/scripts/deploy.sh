@@ -7,7 +7,7 @@ echo "Starting deployment..."
  
 # Simulate build/deployment process (replace with actual logic)
 mkdir -p deployed_version
-echo "App version deployed at $(date)" > deployed_versio/app.txt
+echo "App version deployed at $(date)" > deployed_version/app.txt
  
 # Create a log file for this deployment
 mkdir -p logs
