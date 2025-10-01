@@ -8,12 +8,6 @@ if [ -d "rollback-backup" ]; then
 
   rm -rf deployed_version
   cp -r rollback-backup deployed_version
-  mkdir -p deployed_version
-  echo "App version deployed at $(date)" > deployed_version/app.txt
- 
-  # Create a log file for this deployment
-  mkdir -p logs
-  echo "{\"status\": \"rollback success\", \"timestamp\": \"$(date)\"}" > logs/deployment_log.json
  
   echo " Rollback complete."
 else
