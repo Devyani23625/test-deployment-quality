@@ -3,7 +3,7 @@ deploy.sh :
  
 set -e  # Exit immediately if any command fails
  
-echo "🟢 Starting deployment..."
+echo "Starting deployment..."
  
 # Simulate build/deployment process (replace with actual logic)
 mkdir -p deployed_version
@@ -13,4 +13,4 @@ echo "App version deployed at $(date)" > deployed_version/app.txt
 mkdir -p logs
 echo "{\"status\": \"deployment_success\", \"timestamp\": \"$(date)\"}" > logs/deployment_log.json
  
-echo "✅ Deployment completed successfully."
+echo " Deployment completed successfully."
