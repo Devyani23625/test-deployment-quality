@@ -30,17 +30,25 @@ jobs:
         with:
           name: deployment-log
           path: logs/deployment_log.json
- 
+
       - name: Upload Rollback Backup Artifact
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: rollback-backup
           path: rollback_backup
+ 
+      - name: Download Rollback Artifact
+        if: failure()
+        uses: actions/download-artifact@v3
+        with:
+          name: rollback-backup
+          path: rollback-backup
 
-      - name: Rollback on Failure
+      - name: Run Rollback Script
         if: failure()
         run: |
-         chmod +x .github/scripts/rollback.sh
-         .github/scripts/rollback.sh
+           chmod +x .github/scripts/rollback.sh
+           .github/scripts/rollback.sh
+
  
