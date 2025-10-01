@@ -31,12 +31,12 @@ jobs:
           name: deployment-log
           path: logs/deployment_log.json
  
-      # - name: Upload Rollback Backup Artifact
-      #   if: success()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: rollback-backup
-      #     path: rollback_backup
+      - name: Upload Rollback Backup Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-backup
+          path: rollback_backup
 
       - name: Rollback on Failure
         if: failure()
