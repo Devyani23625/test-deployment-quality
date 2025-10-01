@@ -5,10 +5,10 @@ set -e
 echo "🔴 Deployment failed. Starting rollback..."
  
 # Simulate restoring the previous deployment artifact
-if [ -d "./rollback_backup" ]; then
+if [ -d "./rollback-backup" ]; then
   echo "♻️ Restoring previous version from rollback_backup..."
   rm -rf deployed_version
-  cp -r rollback_backup deployed_version
+  cp -r rollback-backup deployed_version
   
   mkdir -p deployed_version
   echo "App version deployed at $(date)" > deployed_version/app.txt
