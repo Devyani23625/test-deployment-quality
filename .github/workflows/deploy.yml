@@ -15,7 +15,7 @@ jobs:
       - name: Run Deployment Script
         run: |
          chmod +x .github/scripts/deploy.sh 
-         .github/scripts/deploy.sh 
+         .github/scripts/deploy.s 
  
       - name: Save Successful Version for Rollback
         if: success()
