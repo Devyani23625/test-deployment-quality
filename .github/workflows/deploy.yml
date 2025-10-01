@@ -36,8 +36,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rollback-backup
-          path: rollback_backup
- 
+          path: logs/deployment_log.json
+
       - name: Rollback on Failure
         if: failure()
         run: |
