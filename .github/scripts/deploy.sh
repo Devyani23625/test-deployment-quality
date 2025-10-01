@@ -11,6 +11,6 @@ echo "App version deployed at $(date)" > deployed_version/app.txt
  
 # Create a log file for this deployment
 mkdir -p logs
-echo "{\"status\": \"success\", \"timestamp\": \"$(date)\"}" > logs/deployment_log.json
+echo "{\"status\": \"deployment_success\", \"timestamp\": \"$(date)\"}" > logs/deployment_log.json
  
 echo "✅ Deployment completed successfully."
