@@ -8,7 +8,7 @@ echo "🔴 Deployment failed. Starting rollback..."
 if [ -d "./rollback_backup" ]; then
   echo "♻️ Restoring previous version from rollback_backup..."
   rm -rf deployed_version
-  cp -r rollback_backup deployed_version
+  cp -r successful_version deployed_version
   
   mkdir -p deployed_version
   echo "App version deployed at $(date)" > deployed_version/app.txt
