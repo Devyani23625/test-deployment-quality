@@ -35,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deployment-log
-          path: deployments_log.json
+          path: deployment_logs.json
